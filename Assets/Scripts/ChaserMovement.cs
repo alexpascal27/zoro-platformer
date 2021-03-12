@@ -25,7 +25,7 @@ public class ChaserMovement : MonoBehaviour
     
     private void OnCollisionEnter2D(Collision2D other)
     {
-            if (other.gameObject.CompareTag("Player"))
+        if (other.gameObject.CompareTag("Player"))
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }

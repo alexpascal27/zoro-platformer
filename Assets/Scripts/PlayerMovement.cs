@@ -26,9 +26,11 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        /*
         Debug.Log("SleepCounter: " + sleepCounter);
         Debug.Log("CC: " + cc);
         Debug.Log("Raging: " + raging);
+        */
         
         DealWithCcCooldown();
         DealWithRageCooldown();

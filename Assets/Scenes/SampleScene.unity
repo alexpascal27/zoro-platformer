@@ -279,8 +279,8 @@ GameObject:
   - component: {fileID: 513850198}
   - component: {fileID: 513850197}
   m_Layer: 0
-  m_Name: Grass
-  m_TagString: Untagged
+  m_Name: Box
+  m_TagString: ControllableObject
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -559,7 +559,7 @@ GameObject:
   - component: {fileID: 1043675707}
   - component: {fileID: 1043675703}
   m_Layer: 8
-  m_Name: Body
+  m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
