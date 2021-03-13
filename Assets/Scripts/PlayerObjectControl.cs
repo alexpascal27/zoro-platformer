@@ -8,26 +8,13 @@ public class PlayerObjectControl : MonoBehaviour
     private bool touchingControllableObject = false;
     private GameObject controllableObject = null;
     private Vector3 positionalOffset = Vector3.zero;
-    private bool attached = false;
 
     void Update()
     {
         // If we press the ctrl keys and the player is touching a controllable object
         if ((Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl)) && touchingControllableObject)
         {
-            attached = true;
             Debug.Log("Attached");
-        }
-        else
-        {
-            if (attached)
-            {
-                attached = false;
-            }
-        }
-
-        if (attached)
-        {
             controllableObject.transform.position = this.transform.position - positionalOffset;
         }
     }
@@ -47,8 +34,11 @@ public class PlayerObjectControl : MonoBehaviour
     {
         if (other.gameObject.CompareTag("ControllableObject"))
         {
+            /*
             touchingControllableObject = false;
             controllableObject = null;
+            Debug.Log("Detached");
+            */
         }
     }
 }
