@@ -5,6 +5,7 @@ using Random = System.Random;
 public class PlayerMovement : MonoBehaviour
 {
     public CharacterController2D controller;
+    public bool sleepCounterOn = true;
 
     const float runSpeed = 50f;
     float _horizontalMove = 0f;
@@ -31,10 +32,14 @@ public class PlayerMovement : MonoBehaviour
         Debug.Log("CC: " + cc);
         Debug.Log("Raging: " + raging);
         */
+
+        if (sleepCounterOn)
+        {
+            DealWithCcCooldown();
+            DealWithRageCooldown();
+            DealWithSleepCounter();
+        }
         
-        DealWithCcCooldown();
-        DealWithRageCooldown();
-        DealWithSleepCounter();
 
         if (!cc)
         {
