@@ -1,18 +1,21 @@
 ﻿
+using System;
 using UnityEngine;
 using Random = System.Random;
 
 public class PlayerMovement : MonoBehaviour
 {
+    // Movement
     public CharacterController2D controller;
-    public bool sleepCounterOn = true;
-
+    
     const float runSpeed = 50f;
     float _horizontalMove = 0f;
     bool jump = false;
     bool crouch = false;
     private bool right = true;
 
+    // Sleep counter
+    public bool sleepCounterOn = true;
     public int ccRageDuration = 5;
     
     private bool cc = false;
@@ -24,6 +27,13 @@ public class PlayerMovement : MonoBehaviour
     private float sleepCounter = 50f;
     private const float SleepChange = 0.1f;
 
+    // Control object
+    private bool touchingControllableObject = false;
+    private GameObject controllableGameObject = null;
+    private bool pressingControl = false;
+    
+    
+    
     // Update is called once per frame
     void Update()
     {
@@ -39,6 +49,10 @@ public class PlayerMovement : MonoBehaviour
             DealWithRageCooldown();
             DealWithSleepCounter();
         }
+
+        // Checking if control is pressed down
+        if (Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl)) pressingControl = true;
+        else pressingControl = false;
         
 
         if (!cc)
@@ -68,12 +82,25 @@ public class PlayerMovement : MonoBehaviour
     void FixedUpdate()
     {
         controller.Move(_horizontalMove * Time.fixedDeltaTime, crouch, jump);
+        if (touchingControllableObject && pressingControl) MoveControllableObject(_horizontalMove * Time.deltaTime);
         crouch = false;
     }
 
     public void OnLanding()
     {
         jump = false;
+    }
+
+    private void MoveControllableObject(float objectHorizontalMove)
+    {
+        Debug.Log("Moving controllable Object");
+        Rigidbody2D objectRb = controllableGameObject.GetComponent<Rigidbody2D>();
+        Vector3 objectVelocity = objectRb.velocity;
+        Vector3 zero = Vector3.zero;
+        // Move the character by finding the target velocity
+        Vector3 targetVelocity = new Vector2(objectHorizontalMove * 10f, objectVelocity.y);
+        // And then smoothing it out and applying it to the character
+        objectRb.velocity = Vector3.SmoothDamp(objectVelocity, targetVelocity, ref zero, 0.05f);
     }
 
     private void HandleJumpAndCrouch(float verticalMove)
@@ -142,6 +169,25 @@ public class PlayerMovement : MonoBehaviour
         {
             whenCCStops = Time.time + ccRageDuration;
             cc = true;
+        }
+    }
+
+    private void OnCollisionEnter(Collision other)
+    {
+        GameObject gameObject = other.gameObject;
+        if (other.gameObject.CompareTag("ControllableObject"))
+        {
+            touchingControllableObject = true;
+            controllableGameObject = gameObject;
+        }
+    }
+
+    private void OnCollisionExit(Collision other)
+    {
+        if (other.gameObject.CompareTag("ControllableObject"))
+        {
+            touchingControllableObject = false;
+            controllableGameObject = null;
         }
     }
 }
