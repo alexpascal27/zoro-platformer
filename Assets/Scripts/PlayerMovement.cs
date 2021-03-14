@@ -51,9 +51,8 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // Checking if control is pressed down
-        if (Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl)) pressingControl = true;
+        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) pressingControl = true;
         else pressingControl = false;
-        
 
         if (!cc)
         {
@@ -172,20 +171,22 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter(Collision other)
+    private void OnCollisionEnter2D(Collision2D other)
     {
         GameObject gameObject = other.gameObject;
         if (other.gameObject.CompareTag("ControllableObject"))
         {
+            Debug.Log("Touching controllable object");
             touchingControllableObject = true;
             controllableGameObject = gameObject;
         }
     }
 
-    private void OnCollisionExit(Collision other)
+    private void OnCollisionExit2D(Collision2D other)
     {
         if (other.gameObject.CompareTag("ControllableObject"))
         {
+            Debug.Log("No longer touching controllable object");
             touchingControllableObject = false;
             controllableGameObject = null;
         }
