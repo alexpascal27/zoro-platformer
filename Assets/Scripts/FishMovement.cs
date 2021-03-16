@@ -50,11 +50,26 @@ public class FishMovement : MonoBehaviour
 
     void FixedUpdate()
     {
+        // Calculate speed of bite
+        float speed = biteSpeed * Time.deltaTime;
+        
+        if (isMovingToBite)
+        {
+            Vector3 positionAboveBitingPoint = new Vector2(bitingPoint.x, fishRb.transform.position.y);
+            if (fishRb.transform.position == positionAboveBitingPoint)
+            {
+                isBiting = true;
+                isMovingToBite = false;
+            }
+            else
+            {
+                fishRb.transform.position = Vector2.MoveTowards(fishRb.transform.position, positionAboveBitingPoint, speed);
+            }
+            
+        }
+        
         if (isBiting)
         {
-            
-            // Calculate speed of bite
-            float speed = biteSpeed * Time.deltaTime;
             // Move towards bitingPoint
             fishRb.transform.position = Vector2.MoveTowards(fishRb.transform.position, bitingPoint, speed);
         }
@@ -72,7 +87,7 @@ public class FishMovement : MonoBehaviour
         // Find the boat
         // Cast a CircleCast
         RaycastHit2D raycastHit2D =
-            Physics2D.CircleCast(fishRb.position, circleCastRadius, Vector2.left, 2f , boatLayerMask);
+            Physics2D.CircleCast(fishRb.position, circleCastRadius, Vector2.left, 1.5f , boatLayerMask);
         if (raycastHit2D.collider != null)
         {
             boatGameObject = raycastHit2D.collider.gameObject;
@@ -126,6 +141,9 @@ public class FishMovement : MonoBehaviour
             Rigidbody2D playerRb = colliderGameObject.GetComponent<Rigidbody2D>();
             // Push the player up
             playerRb.velocity = Vector2.up * playerUpwardsPush;
+            
+            // Player 'dies' when hit by fish
+            Destroy(colliderGameObject);
         }
         else if (colliderGameObject.CompareTag("Boat"))
         {
