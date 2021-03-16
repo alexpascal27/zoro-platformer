@@ -13,6 +13,8 @@ public class FishMovement : MonoBehaviour
     [SerializeField] private float playerUpwardsPush = 10f;
     [SerializeField] private int circleCastRadius = 5;
 
+    [SerializeField] private float biteSize = 1f;
+
     void Awake()
     {
         fishRb = GetComponent<Rigidbody2D>();
@@ -52,10 +54,36 @@ public class FishMovement : MonoBehaviour
             Physics2D.CircleCast(fishRb.position, circleCastRadius, Vector2.left, 2f , boatLayerMask);
         if (raycastHit2D.collider != null)
         {
+            GameObject boatGameObject = raycastHit2D.collider.gameObject;
+            BoxCollider2D boatBoxCollider2D = boatGameObject.GetComponent<BoxCollider2D>();
+            Vector2 boatCenterPosition = boatBoxCollider2D.bounds.center;
+            Vector2 nearestBitingBlockPosition = FindNearestBitingPoint(boatBoxCollider2D, boatCenterPosition);
+            Debug.Log("NearestBitingPoint: " + nearestBitingBlockPosition);
+
+            // Less Expensive way of doing it but more manual and error prone
+            /*
             Vector2 boatPosition = raycastHit2D.collider.transform.position;
             boatPosition = ApplyBoatPositionOffset(boatPosition);
+            Debug.Log(boatPosition);
+            */
         }
         
+    }
+
+    // At the moment its all based on the idea that the fish is to the RIGHT of the boat (boat is on the left of the fish)
+    private Vector2 FindNearestBitingPoint(BoxCollider2D boatBoxCollider, Vector2 boatCenterPosition)
+    {
+        // Find size
+        float boatSize = boatBoxCollider.size.x;
+
+        // Half size as we need one side
+        float halfSize = boatSize / 2;
+
+        // Center + half - bitesize/2 to find center of biting point
+        float bitingPointXCenter = boatCenterPosition.x + halfSize - biteSize/2;
+
+        // return
+        return new Vector2(bitingPointXCenter, boatCenterPosition.y);
     }
 
     private Vector2 ApplyBoatPositionOffset(Vector2 outputBoatPosition)
