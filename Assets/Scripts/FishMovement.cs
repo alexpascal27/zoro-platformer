@@ -8,12 +8,21 @@ public class FishMovement : MonoBehaviour
     [SerializeField] private LayerMask waterLayerMask;
     [SerializeField] private LayerMask boatLayerMask;
     private BoxCollider2D boxCollider2D;
+
+    private bool fishOnRightOfBoat = true;
+    
     private bool atApex = false;
     [SerializeField] private float jumpVelocity = 100f;
     [SerializeField] private float playerUpwardsPush = 10f;
+    
+    // Biting
     [SerializeField] private int circleCastRadius = 5;
 
     [SerializeField] private float biteSize = 1f;
+    
+    // Boat
+    private GameObject boatGameObject = null;
+    private BoxCollider2D boatBoxCollider2D = null;
 
     void Awake()
     {
@@ -39,6 +48,18 @@ public class FishMovement : MonoBehaviour
         }
     }
 
+    void FixedUpdate()
+    {
+        if (isBiting)
+        {
+            
+            // Calculate speed of bite
+            float speed = biteSpeed * Time.deltaTime;
+            // Move towards bitingPoint
+            fishRb.transform.position = Vector2.MoveTowards(fishRb.transform.position, bitingPoint, speed);
+        }
+    }
+
     private bool isGrounded()
     {
         RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0f,
@@ -54,11 +75,11 @@ public class FishMovement : MonoBehaviour
             Physics2D.CircleCast(fishRb.position, circleCastRadius, Vector2.left, 2f , boatLayerMask);
         if (raycastHit2D.collider != null)
         {
-            GameObject boatGameObject = raycastHit2D.collider.gameObject;
-            BoxCollider2D boatBoxCollider2D = boatGameObject.GetComponent<BoxCollider2D>();
+            boatGameObject = raycastHit2D.collider.gameObject;
+            boatBoxCollider2D = boatGameObject.GetComponent<BoxCollider2D>();
             Vector2 boatCenterPosition = boatBoxCollider2D.bounds.center;
-            Vector2 nearestBitingBlockPosition = FindNearestBitingPoint(boatBoxCollider2D, boatCenterPosition);
-            Debug.Log("NearestBitingPoint: " + nearestBitingBlockPosition);
+            bitingPoint = FindNearestBitingPoint(boatBoxCollider2D, boatCenterPosition);
+            Bite();
 
             // Less Expensive way of doing it but more manual and error prone
             /*
@@ -105,6 +126,10 @@ public class FishMovement : MonoBehaviour
             Rigidbody2D playerRb = colliderGameObject.GetComponent<Rigidbody2D>();
             // Push the player up
             playerRb.velocity = Vector2.up * playerUpwardsPush;
+        }
+        else if (colliderGameObject.CompareTag("Boat"))
+        {
+            ReduceBoatSizeAndKillFish();
         }
     }
 }
