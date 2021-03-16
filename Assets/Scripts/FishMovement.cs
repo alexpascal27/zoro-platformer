@@ -6,11 +6,12 @@ public class FishMovement : MonoBehaviour
 {
     private Rigidbody2D fishRb;
     [SerializeField] private LayerMask waterLayerMask;
+    [SerializeField] private LayerMask boatLayerMask;
     private BoxCollider2D boxCollider2D;
     private bool atApex = false;
     [SerializeField] private float jumpVelocity = 100f;
     [SerializeField] private float playerUpwardsPush = 10f;
-    
+    [SerializeField] private int circleCastRadius = 5;
 
     void Awake()
     {
@@ -45,7 +46,25 @@ public class FishMovement : MonoBehaviour
 
     private void ProcessAtApex()
     {
-        Debug.Log("Fish at apex");
+        // Find the boat
+        // Cast a CircleCast
+        RaycastHit2D raycastHit2D =
+            Physics2D.CircleCast(fishRb.position, circleCastRadius, Vector2.left, 2f , boatLayerMask);
+        if (raycastHit2D.collider != null)
+        {
+            Vector2 boatPosition = raycastHit2D.collider.transform.position;
+            boatPosition = ApplyBoatPositionOffset(boatPosition);
+        }
+        
+    }
+
+    private Vector2 ApplyBoatPositionOffset(Vector2 outputBoatPosition)
+    {
+        float offsetX = -3.14f;
+        float offsetY = -5.4f;
+        outputBoatPosition.x += offsetX;
+        outputBoatPosition.y += offsetY;
+        return outputBoatPosition;
     }
 
     // If we collide with a player, send the player jumping up to help get on the boat
