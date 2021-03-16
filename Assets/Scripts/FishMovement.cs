@@ -7,9 +7,10 @@ public class FishMovement : MonoBehaviour
     private Rigidbody2D fishRb;
     [SerializeField] private LayerMask waterLayerMask;
     private BoxCollider2D boxCollider2D;
-    private bool isJumping = false;
+    private bool atApex = false;
     [SerializeField] private float jumpVelocity = 100f;
     [SerializeField] private float playerUpwardsPush = 10f;
+    
 
     void Awake()
     {
@@ -19,9 +20,19 @@ public class FishMovement : MonoBehaviour
 
     void Update()
     {
+        // Check if we are approximately at apex
+        if (fishRb.velocity.y <= 0 && this.atApex == false)
+        {
+            this.atApex = true;
+            ProcessAtApex();
+        }
+        
         if (isGrounded())
         {
+            // Jump
             fishRb.velocity = Vector2.up * jumpVelocity;
+            // Set high point to false as we are definitely not at apex of jump
+            this.atApex = false;
         }
     }
 
@@ -32,7 +43,12 @@ public class FishMovement : MonoBehaviour
         return raycastHit2D.collider != null;
     }
 
-    // If we collide with a player, send the player jumping up
+    private void ProcessAtApex()
+    {
+        Debug.Log("Fish at apex");
+    }
+
+    // If we collide with a player, send the player jumping up to help get on the boat
     private void OnCollisionEnter2D(Collision2D other)
     {
         GameObject colliderGameObject = other.gameObject;
