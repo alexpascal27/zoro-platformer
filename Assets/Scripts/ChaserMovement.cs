@@ -29,5 +29,9 @@ public class ChaserMovement : MonoBehaviour
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
+        else
+        {
+            Physics2D.IgnoreCollision(other.collider, gameObject.GetComponent<Collider2D>());
+        }
     }
 }
