@@ -16,8 +16,9 @@ public class PlayerMovement : MonoBehaviour
 
     // Sleep counter
     public bool sleepCounterOn = true;
-    public int ccRageDuration = 5;
-    
+    [SerializeField]public float ccDuration = 5f;
+    [SerializeField]public float rageDuration = 3f;
+
     private bool cc = false;
     private float whenCCStops = 0f;
     
@@ -25,7 +26,8 @@ public class PlayerMovement : MonoBehaviour
     private float whenRageStops = 0f;
 
     private float sleepCounter = 50f;
-    private const float SleepChange = 0.1f;
+    [SerializeField]public float counterIncrease = 0.2f;
+    [SerializeField]public float counterDecrease = 0.1f;
 
     // Control object
     private bool touchingControllableObject = false;
@@ -37,11 +39,11 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        /*
+        
         Debug.Log("SleepCounter: " + sleepCounter);
         Debug.Log("CC: " + cc);
         Debug.Log("Raging: " + raging);
-        */
+        
 
         if (sleepCounterOn)
         {
@@ -61,10 +63,10 @@ public class PlayerMovement : MonoBehaviour
             {
                 _horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
                 float verticalMove = Input.GetAxisRaw("Vertical");
-                if (sleepCounter > SleepChange && sleepCounter < (100f - SleepChange))
+                if (sleepCounter > counterDecrease && sleepCounter < (100f - counterIncrease))
                 {
-                    if (_horizontalMove != 0 || verticalMove != 0) sleepCounter -= SleepChange;
-                    else sleepCounter += SleepChange;
+                    if (_horizontalMove != 0 || verticalMove != 0) sleepCounter -= counterDecrease;
+                    else sleepCounter += counterIncrease;
                 }
                 HandleJumpAndCrouch(verticalMove);
             }
@@ -150,15 +152,15 @@ public class PlayerMovement : MonoBehaviour
 
     private void DealWithSleepCounter()
     {
-        if (sleepCounter > SleepChange && sleepCounter < (100f - SleepChange))
+        if (sleepCounter > counterDecrease && sleepCounter < (100f - counterIncrease))
         {
-            if (raging) sleepCounter -= SleepChange;
-            if (cc) sleepCounter += SleepChange;
+            if (raging) sleepCounter -= counterDecrease;
+            if (cc) sleepCounter += counterIncrease;
         }
 
         if (sleepCounter > 90f && !raging)
         {
-            whenRageStops = Time.time + ccRageDuration;
+            whenRageStops = Time.time + rageDuration;
             raging = true;
             Random random = new Random();
             right = random.Next(2) == 0;
@@ -166,7 +168,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (sleepCounter < 10f && !cc)
         {
-            whenCCStops = Time.time + ccRageDuration;
+            whenCCStops = Time.time + ccDuration;
             cc = true;
         }
     }

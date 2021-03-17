@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 // SHould handle the basic movement of the fish (up down movement)
 public class FishMovement : MonoBehaviour
@@ -140,8 +141,6 @@ public class FishMovement : MonoBehaviour
             // Add to fish position
             biteRotationPoint =  fishPosition + midPoint;
         }
-
-        Debug.Log("biteRotationPoint: " + biteRotationPoint);
         
         // Trigger move towards biting point
         isBiting = true;
@@ -185,7 +184,7 @@ public class FishMovement : MonoBehaviour
             // Player 'dies' if fish dives on player
             else
             {
-                Destroy(colliderGameObject);
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
             
             
