@@ -5557,7 +5557,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1240769073}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8.46, y: -4.76, z: 0}
+  m_LocalPosition: {x: -11.38, y: -4.76, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -5578,8 +5578,14 @@ MonoBehaviour:
   waterLayerMask:
     serializedVersion: 2
     m_Bits: 16
-  jumpVelocity: 7
+  boatLayerMask:
+    serializedVersion: 2
+    m_Bits: 1024
+  jumpVelocity: 9
   playerUpwardsPush: 14
+  circleCastRadius: 5
+  biteSpeed: 10
+  biteSize: 1
 --- !u!61 &1240769077
 BoxCollider2D:
   m_ObjectHideFlags: 0

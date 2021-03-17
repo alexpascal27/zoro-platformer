@@ -17,7 +17,10 @@ public class FishMovement : MonoBehaviour
     
     // Biting
     [SerializeField] private int circleCastRadius = 5;
-
+    private bool isBiting = false;
+    private bool isMovingToBite = false;
+    private Vector2 bitingPoint = Vector2.zero;
+    [SerializeField] private float biteSpeed = 10f;
     [SerializeField] private float biteSize = 1f;
     
     // Boat
@@ -131,6 +134,32 @@ public class FishMovement : MonoBehaviour
         return outputBoatPosition;
     }
 
+    private void Bite()
+    {
+        // Remove Gravity
+        fishRb.gravityScale = 0;
+        // Trigger move towards biting point
+        isMovingToBite = true;
+    }
+
+    private void ReduceBoatSizeAndKillFish()
+    {
+        float tileSizeX = boatBoxCollider2D.size.x;
+
+        // Reduce sprite size
+        // Change Scale
+        Transform boatTransformParent= boatGameObject.transform.parent;
+        boatGameObject.transform.parent = null;
+        boatGameObject.transform.localScale *= new Vector2((tileSizeX - biteSize) / tileSizeX, 1);
+        boatGameObject.transform.parent = boatTransformParent;
+        // Move to look like bite
+        // If on right then minus from offset if on left then add to offset
+        boatGameObject.transform.position -= new Vector3((fishOnRightOfBoat ? biteSize/2 : -biteSize/2), 0, 0);
+        
+        // Kill fish
+        Destroy(gameObject);
+    }
+
     // If we collide with a player, send the player jumping up to help get on the boat
     private void OnCollisionEnter2D(Collision2D other)
     {
@@ -142,8 +171,19 @@ public class FishMovement : MonoBehaviour
             // Push the player up
             playerRb.velocity = Vector2.up * playerUpwardsPush;
             
-            // Player 'dies' when hit by fish
-            Destroy(colliderGameObject);
+            
+            // If player is above fish (jumping on fish) then kill fish
+            if (playerRb.transform.position.y >= fishRb.transform.position.y)
+            {
+                Destroy(gameObject);
+            }
+            // Player 'dies' if fish dives on player
+            else
+            {
+                Destroy(colliderGameObject);
+            }
+            
+            
         }
         else if (colliderGameObject.CompareTag("Boat"))
         {
