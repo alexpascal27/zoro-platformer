@@ -18,9 +18,9 @@ public class FishMovement : MonoBehaviour
     // Biting
     [SerializeField] private int circleCastRadius = 5;
     private bool isBiting = false;
-    private bool isMovingToBite = false;
+    private Vector2 biteRotationPoint = Vector2.zero;
     private Vector2 bitingPoint = Vector2.zero;
-    [SerializeField] private float biteSpeed = 10f;
+    [SerializeField] private float biteRotationSpeed = 10f;
     [SerializeField] private float biteSize = 1f;
     
     // Boat
@@ -54,27 +54,12 @@ public class FishMovement : MonoBehaviour
     void FixedUpdate()
     {
         // Calculate speed of bite
-        float speed = biteSpeed * Time.deltaTime;
-        
-        if (isMovingToBite)
-        {
-            Vector3 positionAboveBitingPoint = new Vector2(bitingPoint.x, fishRb.transform.position.y);
-            if (fishRb.transform.position == positionAboveBitingPoint)
-            {
-                isBiting = true;
-                isMovingToBite = false;
-            }
-            else
-            {
-                fishRb.transform.position = Vector2.MoveTowards(fishRb.transform.position, positionAboveBitingPoint, speed);
-            }
-            
-        }
-        
+        float speed = biteRotationSpeed * Time.deltaTime;
+
         if (isBiting)
         {
-            // Move towards bitingPoint
-            fishRb.transform.position = Vector2.MoveTowards(fishRb.transform.position, bitingPoint, speed);
+            // Rotate to 
+            fishRb.transform.RotateAround(biteRotationPoint, new Vector3(0, 0, 1), speed);
         }
     }
 
@@ -138,8 +123,28 @@ public class FishMovement : MonoBehaviour
     {
         // Remove Gravity
         fishRb.gravityScale = 0;
+
+        Vector3 fishPosition = fishRb.transform.position;
+        // Find point to rotate around for the dive
+        if (fishOnRightOfBoat)
+        {
+            // Fish position - bite position
+            Vector2 midPoint = (fishPosition - (Vector3)bitingPoint)/2;
+            // Add to bite position
+            biteRotationPoint = bitingPoint + midPoint;
+        }
+        else
+        {
+            // Bite position - fish position
+            Vector3 midPoint = ((Vector3)bitingPoint - fishPosition)/2;
+            // Add to fish position
+            biteRotationPoint =  fishPosition + midPoint;
+        }
+
+        Debug.Log("biteRotationPoint: " + biteRotationPoint);
+        
         // Trigger move towards biting point
-        isMovingToBite = true;
+        isBiting = true;
     }
 
     private void ReduceBoatSizeAndKillFish()
