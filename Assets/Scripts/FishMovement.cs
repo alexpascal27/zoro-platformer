@@ -97,7 +97,7 @@ public class FishMovement : MonoBehaviour
             boatGameObject = raycastHit2D.collider.gameObject;
             boatBoxCollider2D = boatGameObject.GetComponent<BoxCollider2D>();
             Vector2 boatCenterPosition = boatBoxCollider2D.bounds.center;
-            bitingPoint = FindNearestBitingPoint(boatBoxCollider2D, boatCenterPosition);
+            bitingPoint = FindNearestBitingPoint(boatGameObject, boatBoxCollider2D, boatCenterPosition);
             Bite();
 
             // Less Expensive way of doing it but more manual and error prone
@@ -111,10 +111,14 @@ public class FishMovement : MonoBehaviour
     }
 
     // At the moment its all based on the idea that the fish is to the RIGHT of the boat (boat is on the left of the fish)
-    private Vector2 FindNearestBitingPoint(BoxCollider2D boatBoxCollider, Vector2 boatCenterPosition)
+    private Vector2 FindNearestBitingPoint(GameObject boatGameObject, BoxCollider2D boatBoxCollider, Vector2 boatCenterPosition)
     {
-        // Find size
-        float boatSize = boatBoxCollider.size.x;
+        float boatScale = boatBoxCollider.transform.localScale.x;
+    
+        // Find collider size
+        float colliderSize = boatBoxCollider.size.x;
+
+        float boatSize = colliderSize * boatScale;
 
         // Half size as we need one side
         float halfSize = boatSize / 2;
