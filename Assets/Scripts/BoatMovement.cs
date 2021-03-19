@@ -17,6 +17,8 @@ public class BoatMovement : MonoBehaviour
 
     void Update()
     {
+        CheckIfBoatBroken();
+        
         if (canMove)
         {
             // Move the character by finding the target velocity
@@ -25,6 +27,21 @@ public class BoatMovement : MonoBehaviour
             rb.velocity = Vector3.SmoothDamp(rb.velocity, targetVelocity, ref zero, m_MovementSmoothing);
         }
         
+    }
+
+    void CheckIfBoatBroken()
+    {
+        float boatSize = GetBoatSize();
+        if(boatSize < 2) Destroy(gameObject);
+    }
+    
+    private float GetBoatSize()
+    {
+        float boatScale = gameObject.transform.localScale.x;
+        // Find collider size
+        BoxCollider2D boatBoxCollider2D = GetComponent<BoxCollider2D>();
+        float colliderSize = boatBoxCollider2D.size.x;
+        return colliderSize * boatScale;
     }
 
     private void OnCollisionEnter2D(Collision2D other)

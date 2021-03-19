@@ -8,7 +8,6 @@ public class FishMovement : MonoBehaviour
     private Rigidbody2D fishRb;
     [SerializeField] private LayerMask waterLayerMask;
     [SerializeField] private LayerMask boatLayerMask;
-    private BoxCollider2D boxCollider2D;
 
     public bool fishOnRightOfBoat = true;
     private float leftRaycastDistance;
@@ -34,7 +33,7 @@ public class FishMovement : MonoBehaviour
     void Awake()
     {
         fishRb = GetComponent<Rigidbody2D>();
-        boxCollider2D = GetComponent<BoxCollider2D>();
+        boatBoxCollider2D = GetComponent<BoxCollider2D>();
 
         FishSpawn fishSpawn = staticBoatGameObject.GetComponent<FishSpawn>();
         leftRaycastDistance = fishSpawn.leftMinDistance;
@@ -42,8 +41,6 @@ public class FishMovement : MonoBehaviour
 
     void Update()
     {
-        
-        
         // Check if we are approximately at apex
         if (fishRb.velocity.y <= 0 && this.atApex == false)
         {
@@ -95,7 +92,7 @@ public class FishMovement : MonoBehaviour
 
     private bool isGrounded()
     {
-        RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0f,
+        RaycastHit2D raycastHit2D = Physics2D.BoxCast(boatBoxCollider2D.bounds.center, boatBoxCollider2D.bounds.size, 0f,
             Vector2.down, .1f, waterLayerMask);
         return raycastHit2D.collider != null;
     }
@@ -137,10 +134,7 @@ public class FishMovement : MonoBehaviour
     {
         float boatVelocityX = boatGameObject.GetComponent<Rigidbody2D>().velocity.x;
         
-        float boatScale = boatGameObject.transform.localScale.x;
-        // Find collider size
-        float colliderSize = boatBoxCollider2D.size.x;
-        float boatSize = colliderSize * boatScale;
+        float boatSize = GetBoatSize();
 
         // Half size as we need one side
         float halfSize = boatSize / 2;
@@ -160,6 +154,14 @@ public class FishMovement : MonoBehaviour
 
         // return
         return new Vector2(bitingPointXCenter, boatCenterPosition.y);
+    }
+
+    private float GetBoatSize()
+    {
+        float boatScale = boatGameObject.transform.localScale.x;
+        // Find collider size
+        float colliderSize = boatBoxCollider2D.size.x;
+        return colliderSize * boatScale;
     }
 
     private float GetBitingOffset(float boatVelocityX)
