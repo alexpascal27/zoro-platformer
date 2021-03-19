@@ -1,11 +1,16 @@
 using System;
 using UnityEngine;
+using Random = System.Random;
 
 public class FishSpawn : MonoBehaviour
 {
     [SerializeField]private GameObject fishGameObject;
     
+    private Vector2 boatCenterPosition;
+    private float biteSize;
+    
     [Range(1,20)][SerializeField] int numberOfFishesAtTime = 3;
+    private const float fishStartPositionY = -4.76f;
     [Range(5f, 20f)] [SerializeField] private float leftMinDistance = 11f;
     [Range(5f, 20f)] [SerializeField] private float rightMinDistance = 11f;
     [Range(5f, 20f)] [SerializeField] private float leftSpawnRange = 10f;
@@ -13,12 +18,21 @@ public class FishSpawn : MonoBehaviour
 
     private int numberOfActiveFishes = 0;
 
+    private void Awake()
+    {
+        BoxCollider2D boatBoxCollider2D = gameObject.GetComponent<BoxCollider2D>();
+        boatCenterPosition = boatBoxCollider2D.bounds.center;
+
+        biteSize = fishGameObject.GetComponent<FishMovement>().biteSize;
+    }
+
     void Update()
     {
         // Check if we need to spawn
         // If we need to spawn
-        if (numberOfActiveFishes < numberOfActiveFishes)
+        if (numberOfActiveFishes < numberOfFishesAtTime)
         {
+            Debug.Log("Not enough fishes: "+ numberOfActiveFishes);
             // Check if we can spawn (either left or right are free or both)
             bool canSpawnLeft = CanSpawn(true);
             bool canSpawnRight = CanSpawn(false);
@@ -29,25 +43,98 @@ public class FishSpawn : MonoBehaviour
                 // If we can - if both available then randomise side, if only one pick one
                 bool spawnLeft = SpawnLeftSide(canSpawnLeft, canSpawnRight);
                 // Calculate spawn location  = minDistance + random value in range
-                Vector2 spawnLocation = getSpawnLocation(spawnLeft);
+                Vector2 spawnLocation = GetSpawnLocation(spawnLeft);
                 // Spawn and increase the no of active fishes accordingly
                 fishGameObject.GetComponent<FishMovement>().fishOnRightOfBoat = !spawnLeft;
+                fishGameObject.transform.position = spawnLocation;
                 Instantiate(fishGameObject);
+                Debug.Log("Spawned a fish, spawnLeft: "+ spawnLeft + ", position: " + spawnLocation);
                 numberOfActiveFishes++;
             }
         }
     }
 
-    bool CanSpawn(bool left)
+    private bool CanSpawn(bool left)
     {
+        RaycastHit2D raycastHit2D;
         if (left)
         {
-            RaycastHit2D raycastHit2D = Physics2D.Raycast() 
+            raycastHit2D =
+                Physics2D.Raycast(boatCenterPosition, Vector2.left, leftMinDistance + leftSpawnRange);
         }
         else
         {
-            
+            raycastHit2D =
+                Physics2D.Raycast(boatCenterPosition, Vector2.right, rightMinDistance + rightSpawnRange);
         }
+        return raycastHit2D.collider != null;
+    }
+
+    private bool SpawnLeftSide(bool canSpawnLeft, bool canSpawnRight)
+    {
+        // Just left
+        if (canSpawnLeft && !canSpawnRight)
+        {
+            return true;
+        }
+        // Just right
+        else if (!canSpawnLeft && canSpawnRight)
+        {
+            return false;
+        }
+        // If both
+        else
+        {
+            // Randomise 
+            Random rand = new Random();
+            return rand.Next(1) == 1;
+        }
+    }
+
+    private Vector2 GetSpawnLocation(bool spawnLeft)
+    {
+        float bitingPointX = FindNearestBitingPoint(spawnLeft).x;
+
+        Random rand = new Random();
+
+        float fishStartPositionX;
+        if (spawnLeft)
+        {
+            fishStartPositionX = bitingPointX - leftMinDistance;
+            float posXInRange = rand.Next((int)leftSpawnRange);
+            fishStartPositionX -= posXInRange;
+        }
+        else
+        {
+            fishStartPositionX = bitingPointX + rightMinDistance;
+            float posXInRange = rand.Next((int)rightSpawnRange);
+            fishStartPositionX += posXInRange;
+        }
+
+        return new Vector2(fishStartPositionX, fishStartPositionY);
+    }
+    
+    private Vector2 FindNearestBitingPoint(bool spawnLeft)
+    {
+        // Find size
+        float boatSize = gameObject.GetComponent<BoxCollider2D>().size.x;
+
+        // Half size as we need one side
+        float halfSize = boatSize / 2;
+        
+        // Center + half - bitesize/2 to find center of biting point
+        float bitingPointXCenter;
+        if (!spawnLeft)
+        {
+            bitingPointXCenter = boatCenterPosition.x + halfSize - biteSize/2;
+        }
+        else
+        {
+            bitingPointXCenter = boatCenterPosition.x - halfSize + biteSize/2;
+        }
+
+        // return
+        return new Vector2(bitingPointXCenter, boatCenterPosition.y);
     }
 
     private void OnCollisionEnter2D(Collision2D other)
@@ -58,6 +145,7 @@ public class FishSpawn : MonoBehaviour
             // Dont kill fish as it already dies based on another script
             // Just reduce active fishes
             numberOfActiveFishes--;
+            Debug.Log("Reduced number of active fishes by 1, new number: " + numberOfActiveFishes);
         }
     }
 }

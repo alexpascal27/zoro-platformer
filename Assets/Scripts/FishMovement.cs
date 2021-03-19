@@ -22,7 +22,7 @@ public class FishMovement : MonoBehaviour
     private Vector2 biteRotationPoint = Vector2.zero;
     private Vector2 bitingPoint = Vector2.zero;
     [SerializeField] private float biteRotationSpeed = 10f;
-    [SerializeField] private float biteSize = 1f;
+    [SerializeField] public float biteSize = 1f;
     
     // Boat
     private GameObject boatGameObject = null;
@@ -59,15 +59,7 @@ public class FishMovement : MonoBehaviour
 
         if (isBiting)
         {
-            // Rotate to 
-            if (fishOnRightOfBoat)
-            {
-                fishRb.transform.RotateAround(biteRotationPoint, new Vector3(0, 0, 1), speed);
-            }
-            else
-            {
-                fishRb.transform.RotateAround(biteRotationPoint, new Vector3(0, 0, -1), speed);
-            }
+            fishRb.transform.RotateAround(biteRotationPoint, new Vector3(0, 0, 1), speed);
         }
     }
 
