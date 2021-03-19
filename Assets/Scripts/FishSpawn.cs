@@ -11,10 +11,10 @@ public class FishSpawn : MonoBehaviour
     
     [Range(1,20)][SerializeField] int numberOfFishesAtTime = 3;
     private const float fishStartPositionY = -4.76f;
-    [Range(5f, 20f)] [SerializeField] private float leftMinDistance = 11f;
-    [Range(5f, 20f)] [SerializeField] private float rightMinDistance = 11f;
-    [Range(5f, 20f)] [SerializeField] private float leftSpawnRange = 10f;
-    [Range(5f, 20f)] [SerializeField] private float rightSpawnRange = 10f;
+    [Range(1f, 20f)] [SerializeField] private float leftMinDistance = 11f;
+    [Range(1f, 20f)] [SerializeField] private float rightMinDistance = 11f;
+    [Range(1f, 20f)] [SerializeField] private float leftSpawnRange = 10f;
+    [Range(1f, 20f)] [SerializeField] private float rightSpawnRange = 10f;
 
     private int numberOfActiveFishes = 0;
 
@@ -36,6 +36,7 @@ public class FishSpawn : MonoBehaviour
             // Check if we can spawn (either left or right are free or both)
             bool canSpawnLeft = CanSpawn(true);
             bool canSpawnRight = CanSpawn(false);
+            Debug.Log("Left: " + canSpawnLeft + " and now Right: " + canSpawnRight);
 
             // If not then we ignore
             if (canSpawnLeft || canSpawnRight)
@@ -60,14 +61,14 @@ public class FishSpawn : MonoBehaviour
         if (left)
         {
             raycastHit2D =
-                Physics2D.Raycast(boatCenterPosition, Vector2.left, leftMinDistance + leftSpawnRange);
+                Physics2D.Raycast(boatCenterPosition, Vector2.left, leftMinDistance + leftSpawnRange, 1 << LayerMask.NameToLayer("Default"));
         }
         else
         {
             raycastHit2D =
-                Physics2D.Raycast(boatCenterPosition, Vector2.right, rightMinDistance + rightSpawnRange);
+                Physics2D.Raycast(boatCenterPosition, Vector2.right, rightMinDistance + rightSpawnRange, 1 << LayerMask.NameToLayer("Default"));
         }
-        return raycastHit2D.collider != null;
+        return raycastHit2D.collider == null;
     }
 
     private bool SpawnLeftSide(bool canSpawnLeft, bool canSpawnRight)

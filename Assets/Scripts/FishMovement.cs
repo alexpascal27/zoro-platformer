@@ -59,7 +59,15 @@ public class FishMovement : MonoBehaviour
 
         if (isBiting)
         {
-            fishRb.transform.RotateAround(biteRotationPoint, new Vector3(0, 0, 1), speed);
+            // Rotate to 
+            if (fishOnRightOfBoat)
+            {
+                fishRb.transform.RotateAround(biteRotationPoint, new Vector3(0, 0, 1), speed);
+            }
+            else
+            {
+                fishRb.transform.RotateAround(biteRotationPoint, new Vector3(0, 0, -1), speed);
+            }
         }
     }
 
