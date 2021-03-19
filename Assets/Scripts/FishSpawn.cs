@@ -32,6 +32,7 @@ public class FishSpawn : MonoBehaviour
             // Check if we can spawn (either left or right are free or both)
             bool canSpawnLeft = CanSpawn(true);
             bool canSpawnRight = CanSpawn(false);
+            Debug.Log("Left: " + canSpawnLeft + " and now Right: " + canSpawnRight);
 
             // If not then we ignore
             if (canSpawnLeft || canSpawnRight)
@@ -90,7 +91,7 @@ public class FishSpawn : MonoBehaviour
         {
             // Randomise 
             Random rand = new Random();
-            return rand.Next(1) == 1;
+            return rand.Next(2) == 1;
         }
     }
 

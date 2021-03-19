@@ -12,6 +12,7 @@ public class FishMovement : MonoBehaviour
 
     public bool fishOnRightOfBoat = true;
     
+    
     private bool atApex = false;
     [SerializeField] private float jumpVelocity = 100f;
     [SerializeField] private float playerUpwardsPush = 10f;
@@ -97,7 +98,7 @@ public class FishMovement : MonoBehaviour
             boatGameObject = raycastHit2D.collider.gameObject;
             boatBoxCollider2D = boatGameObject.GetComponent<BoxCollider2D>();
             Vector2 boatCenterPosition = boatBoxCollider2D.bounds.center;
-            bitingPoint = FindNearestBitingPoint(boatGameObject, boatBoxCollider2D, boatCenterPosition);
+            bitingPoint = FindNearestBitingPoint(boatCenterPosition);
             Bite();
 
             // Less Expensive way of doing it but more manual and error prone
@@ -111,13 +112,13 @@ public class FishMovement : MonoBehaviour
     }
 
     // At the moment its all based on the idea that the fish is to the RIGHT of the boat (boat is on the left of the fish)
-    private Vector2 FindNearestBitingPoint(GameObject boatGameObject, BoxCollider2D boatBoxCollider, Vector2 boatCenterPosition)
+    private Vector2 FindNearestBitingPoint(Vector2 boatCenterPosition)
     {
-        float boatScale = boatBoxCollider.transform.localScale.x;
-    
+        float boatVelocityX = boatGameObject.GetComponent<Rigidbody2D>().velocity.x;
+        
+        float boatScale = boatGameObject.transform.localScale.x;
         // Find collider size
-        float colliderSize = boatBoxCollider.size.x;
-
+        float colliderSize = boatBoxCollider2D.size.x;
         float boatSize = colliderSize * boatScale;
 
         // Half size as we need one side
@@ -133,10 +134,25 @@ public class FishMovement : MonoBehaviour
         {
             bitingPointXCenter = boatCenterPosition.x - halfSize + biteSize/2;
         }
+         bitingPointXCenter += GetBitingOffset(boatVelocityX);
             
 
         // return
         return new Vector2(bitingPointXCenter, boatCenterPosition.y);
+    }
+
+    private float GetBitingOffset(float boatVelocityX)
+    {
+        Debug.Log(boatVelocityX);
+        // We expect a travel distance of 180 degrees, we work out how the fish dives (how many degrees per time)
+        float degreesPerTime = biteRotationSpeed / 50f;
+        // Calculate the time it would take us to bite
+        float secondsToBitingPoint = (180f / degreesPerTime)/50f;
+        // Calculate boat travel during that time
+        float boatTravelX =  boatVelocityX * secondsToBitingPoint;
+
+       // Debug.Log("Degrees Per time: " + degreesPerTime + ", SecondsToBitingPoint: "+ secondsToBitingPoint +", BoatTravelX: " + boatTravelX);
+        return boatTravelX;
     }
 
     private Vector2 ApplyBoatPositionOffset(Vector2 outputBoatPosition)
