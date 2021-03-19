@@ -27,13 +27,14 @@ public class FishMovement : MonoBehaviour
     
     // Boat
     [SerializeField] private GameObject staticBoatGameObject;
-    private GameObject boatGameObject = null;
+    private GameObject boatGameObject;
     private BoxCollider2D boatBoxCollider2D = null;
 
     void Awake()
     {
         fishRb = GetComponent<Rigidbody2D>();
         boatBoxCollider2D = GetComponent<BoxCollider2D>();
+        boatGameObject = staticBoatGameObject;
 
         FishSpawn fishSpawn = staticBoatGameObject.GetComponent<FishSpawn>();
         leftRaycastDistance = fishSpawn.leftMinDistance;
@@ -63,8 +64,8 @@ public class FishMovement : MonoBehaviour
 
     private void CheckIfFishNeedToDie()
     {
-        // fish dies if rotation is over 180
-        if (fishRb.transform.rotation.z < -179f || fishRb.transform.rotation.z > 179f)
+        // fish dies if rotation is over 180 and below boat
+        if ((fishRb.transform.rotation.z < -179f || fishRb.transform.rotation.z > 179f) && fishRb.transform.position.y < boatGameObject.transform.position.y)
         {
             Destroy(gameObject);
         }

@@ -5,9 +5,8 @@ using Random = System.Random;
 public class FishSpawn : MonoBehaviour
 {
     [SerializeField]private GameObject fishGameObject;
-    
+    private bool touchedPlayer = false;
     private float biteSize;
-    
     [Range(1,20)][SerializeField] int numberOfFishesAtTime = 3;
     private const float fishStartPositionY = -4.76f;
     [Range(1f, 20f)] [SerializeField] public float leftMinDistance = 11f;
@@ -35,7 +34,7 @@ public class FishSpawn : MonoBehaviour
     {
         // Check if we need to spawn
         // If we need to spawn
-        if (numberOfActiveFishes < numberOfFishesAtTime)
+        if (numberOfActiveFishes < numberOfFishesAtTime && touchedPlayer)
         {
             int freeSlotIndex = GetFreeSpawnSlot(Time.time);
             // Only spawn if we no slots are on cooldown
@@ -175,5 +174,13 @@ public class FishSpawn : MonoBehaviour
 
         // return
         return new Vector2(bitingPointXCenter, boatCenterPosition.y);
+    }
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.gameObject.CompareTag("Player"))
+        {
+            touchedPlayer = true;
+        }
     }
 }
