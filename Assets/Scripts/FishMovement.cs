@@ -49,6 +49,8 @@ public class FishMovement : MonoBehaviour
             ProcessAtApex();
         }
         
+        CheckIfFishNeedToDie();
+        
         if (isGrounded())
         {
             // Jump
@@ -56,6 +58,18 @@ public class FishMovement : MonoBehaviour
             // Set high point to false as we are definitely not at apex of jump
             this.atApex = false;
         }
+
+        
+    }
+
+    private void CheckIfFishNeedToDie()
+    {
+        // fish dies if rotation is over 180
+        if (fishRb.transform.rotation.z < -179f || fishRb.transform.rotation.z > 179f)
+        {
+            Destroy(gameObject);
+        }
+        
     }
 
     void FixedUpdate()
