@@ -6,7 +6,6 @@ public class FishSpawn : MonoBehaviour
 {
     [SerializeField]private GameObject fishGameObject;
     
-    private Vector2 boatCenterPosition;
     private float biteSize;
     
     [Range(1,20)][SerializeField] int numberOfFishesAtTime = 3;
@@ -20,9 +19,6 @@ public class FishSpawn : MonoBehaviour
 
     private void Awake()
     {
-        BoxCollider2D boatBoxCollider2D = gameObject.GetComponent<BoxCollider2D>();
-        boatCenterPosition = boatBoxCollider2D.bounds.center;
-
         biteSize = fishGameObject.GetComponent<FishMovement>().biteSize;
     }
 
@@ -54,9 +50,16 @@ public class FishSpawn : MonoBehaviour
         }
     }
 
+    private Vector2 GetBoatCenterPosition()
+    {
+        BoxCollider2D boatBoxCollider2D = gameObject.GetComponent<BoxCollider2D>();
+        return boatBoxCollider2D.bounds.center;
+    }
+
     private bool CanSpawn(bool left)
     {
         RaycastHit2D raycastHit2D;
+        Vector2 boatCenterPosition = GetBoatCenterPosition();
         if (left)
         {
             raycastHit2D =
@@ -116,8 +119,14 @@ public class FishSpawn : MonoBehaviour
     
     private Vector2 FindNearestBitingPoint(bool spawnLeft)
     {
+        Vector2 boatCenterPosition = GetBoatCenterPosition();
+        
         // Find size
-        float boatSize = gameObject.GetComponent<BoxCollider2D>().size.x;
+        float boatScale = gameObject.transform.localScale.x;
+        // Find collider size
+        float colliderSize = gameObject.GetComponent<BoxCollider2D>().size.x;
+        
+        float boatSize = colliderSize * boatScale;
 
         // Half size as we need one side
         float halfSize = boatSize / 2;
