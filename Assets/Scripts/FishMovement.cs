@@ -243,4 +243,38 @@ public class FishMovement : MonoBehaviour
             ReduceBoatSizeAndKillFish();
         }
     }
+
+    private void OnDestroy()
+    {
+        // Find boats in scene
+        GameObject[] boats = GameObject.FindGameObjectsWithTag("Boat");
+
+        // Identify Closest boat
+        GameObject closestBoat = GetClosestBoat(boats);
+        // If found any boat
+        if (closestBoat != null)
+        {
+            // Deduct 1 from active fishes in the FishSpawn script
+            FishSpawn fishSpawn = closestBoat.GetComponent<FishSpawn>();
+            fishSpawn.numberOfActiveFishes--;
+        }
+    }
+
+    private GameObject GetClosestBoat(GameObject[] boats)
+    {
+        float smallestDistanceX = Single.PositiveInfinity;
+        // Only care about X
+        float fishPositionX = gameObject.transform.position.x;
+        foreach (GameObject boat in boats)
+        {
+            float distance = GetDistanceBetween(fishPositionX, boat.transform.position.x);
+            if (distance < smallestDistanceX) return boat;
+        }
+        return null;
+    }
+
+    private float GetDistanceBetween(float x1, float x2)
+    {
+        return Math.Abs(x1 - x2);
+    }
 }

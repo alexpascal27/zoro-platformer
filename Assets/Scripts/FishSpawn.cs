@@ -15,7 +15,7 @@ public class FishSpawn : MonoBehaviour
     [Range(1f, 20f)] [SerializeField] public float leftSpawnRange = 10f;
     [Range(1f, 20f)] [SerializeField] public float rightSpawnRange = 10f;
 
-    private int numberOfActiveFishes = 0;
+    public int numberOfActiveFishes = 0;
 
     private void Awake()
     {
@@ -145,17 +145,5 @@ public class FishSpawn : MonoBehaviour
 
         // return
         return new Vector2(bitingPointXCenter, boatCenterPosition.y);
-    }
-
-    private void OnCollisionEnter2D(Collision2D other)
-    {
-        // If fish dives on boat
-        if (other.gameObject.CompareTag("Fish"))
-        {
-            // Dont kill fish as it already dies based on another script
-            // Just reduce active fishes
-            numberOfActiveFishes--;
-            Debug.Log("Reduced number of active fishes by 1, new number: " + numberOfActiveFishes);
-        }
     }
 }
