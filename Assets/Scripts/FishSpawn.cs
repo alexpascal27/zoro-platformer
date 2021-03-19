@@ -14,12 +14,21 @@ public class FishSpawn : MonoBehaviour
     [Range(1f, 20f)] [SerializeField] public float rightMinDistance = 11f;
     [Range(1f, 20f)] [SerializeField] public float leftSpawnRange = 10f;
     [Range(1f, 20f)] [SerializeField] public float rightSpawnRange = 10f;
+    [Range(1f, 20f)] [SerializeField] public float spawnCooldown = 1f;
 
     public int numberOfActiveFishes = 0;
+    private float[] spawnCooldownTracker;
 
     private void Awake()
     {
         biteSize = fishGameObject.GetComponent<FishMovement>().biteSize;
+        
+        // spawn cooldown array
+        spawnCooldownTracker = new float[numberOfFishesAtTime];
+        for (int i = 0; i < numberOfFishesAtTime; i++)
+        {
+            spawnCooldownTracker[i] = 0f;
+        }
     }
 
     void Update()
@@ -28,27 +37,48 @@ public class FishSpawn : MonoBehaviour
         // If we need to spawn
         if (numberOfActiveFishes < numberOfFishesAtTime)
         {
-            Debug.Log("Not enough fishes: "+ numberOfActiveFishes);
-            // Check if we can spawn (either left or right are free or both)
-            bool canSpawnLeft = CanSpawn(true);
-            bool canSpawnRight = CanSpawn(false);
-            Debug.Log("Left: " + canSpawnLeft + " and now Right: " + canSpawnRight);
-
-            // If not then we ignore
-            if (canSpawnLeft || canSpawnRight)
+            int freeSlotIndex = GetFreeSpawnSlot(Time.time);
+            // Only spawn if we no slots are on cooldown
+            if (freeSlotIndex != -1)
             {
-                // If we can - if both available then randomise side, if only one pick one
-                bool spawnLeft = SpawnLeftSide(canSpawnLeft, canSpawnRight);
-                // Calculate spawn location  = minDistance + random value in range
-                Vector2 spawnLocation = GetSpawnLocation(spawnLeft);
-                // Spawn and increase the no of active fishes accordingly
-                fishGameObject.GetComponent<FishMovement>().fishOnRightOfBoat = !spawnLeft;
-                fishGameObject.transform.position = spawnLocation;
-                Instantiate(fishGameObject);
-                Debug.Log("Spawned a fish, spawnLeft: "+ spawnLeft + ", position: " + spawnLocation);
-                numberOfActiveFishes++;
+                ApplyCooldownOnSlot(freeSlotIndex, Time.time);
+                
+                // Check if we can spawn (either left or right are free or both)
+                bool canSpawnLeft = CanSpawn(true);
+                bool canSpawnRight = CanSpawn(false);
+
+                // If not then we ignore
+                if (canSpawnLeft || canSpawnRight)
+                {
+                    // If we can - if both available then randomise side, if only one pick one
+                    bool spawnLeft = SpawnLeftSide(canSpawnLeft, canSpawnRight);
+                    // Calculate spawn location  = minDistance + random value in range
+                    Vector2 spawnLocation = GetSpawnLocation(spawnLeft);
+                    // Spawn and increase the no of active fishes accordingly
+                    fishGameObject.GetComponent<FishMovement>().fishOnRightOfBoat = !spawnLeft;
+                    fishGameObject.transform.position = spawnLocation;
+                    Instantiate(fishGameObject);
+                    numberOfActiveFishes++;
+                }
             }
         }
+    }
+
+    private int GetFreeSpawnSlot(float time)
+    {
+        for (int i = 0; i < spawnCooldownTracker.Length; i++)
+        {
+            if (spawnCooldownTracker[i] < time) return i;
+        }
+        
+        return -1;
+    }
+    
+    
+
+    private void ApplyCooldownOnSlot(int freeSlotIndex, float time)
+    {
+        spawnCooldownTracker[freeSlotIndex] = time + spawnCooldown;
     }
 
     private Vector2 GetBoatCenterPosition()

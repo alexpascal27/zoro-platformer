@@ -42,6 +42,8 @@ public class FishMovement : MonoBehaviour
 
     void Update()
     {
+        
+        
         // Check if we are approximately at apex
         if (fishRb.velocity.y <= 0 && this.atApex == false)
         {
@@ -162,7 +164,6 @@ public class FishMovement : MonoBehaviour
 
     private float GetBitingOffset(float boatVelocityX)
     {
-        Debug.Log(boatVelocityX);
         // We expect a travel distance of 180 degrees, we work out how the fish dives (how many degrees per time)
         float degreesPerTime = biteRotationSpeed / 50f;
         // Calculate the time it would take us to bite
