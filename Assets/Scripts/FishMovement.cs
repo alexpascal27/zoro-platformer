@@ -11,7 +11,8 @@ public class FishMovement : MonoBehaviour
     private BoxCollider2D boxCollider2D;
 
     public bool fishOnRightOfBoat = true;
-    
+    private float leftRaycastDistance;
+    [SerializeField] private float rightRaycastDistance = 3f;
     
     private bool atApex = false;
     [SerializeField] private float jumpVelocity = 100f;
@@ -26,6 +27,7 @@ public class FishMovement : MonoBehaviour
     [SerializeField] public float biteSize = 1f;
     
     // Boat
+    [SerializeField] private GameObject staticBoatGameObject;
     private GameObject boatGameObject = null;
     private BoxCollider2D boatBoxCollider2D = null;
 
@@ -33,6 +35,9 @@ public class FishMovement : MonoBehaviour
     {
         fishRb = GetComponent<Rigidbody2D>();
         boxCollider2D = GetComponent<BoxCollider2D>();
+
+        FishSpawn fishSpawn = staticBoatGameObject.GetComponent<FishSpawn>();
+        leftRaycastDistance = fishSpawn.leftMinDistance;
     }
 
     void Update()
@@ -86,11 +91,11 @@ public class FishMovement : MonoBehaviour
         RaycastHit2D raycastHit2D;
         if (fishOnRightOfBoat)
         {
-            raycastHit2D = Physics2D.CircleCast(fishRb.position, circleCastRadius, Vector2.left, 1.5f , boatLayerMask);
+            raycastHit2D = Physics2D.CircleCast(fishRb.position, circleCastRadius, Vector2.left, leftRaycastDistance , boatLayerMask);
         }
         else
         {
-            raycastHit2D = Physics2D.CircleCast(fishRb.position, circleCastRadius, Vector2.right, 1.5f , boatLayerMask);
+            raycastHit2D = Physics2D.CircleCast(fishRb.position, circleCastRadius, Vector2.right, rightRaycastDistance , boatLayerMask);
         }
         
         if (raycastHit2D.collider != null)

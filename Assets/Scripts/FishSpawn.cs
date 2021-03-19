@@ -10,10 +10,10 @@ public class FishSpawn : MonoBehaviour
     
     [Range(1,20)][SerializeField] int numberOfFishesAtTime = 3;
     private const float fishStartPositionY = -4.76f;
-    [Range(1f, 20f)] [SerializeField] private float leftMinDistance = 11f;
-    [Range(1f, 20f)] [SerializeField] private float rightMinDistance = 11f;
-    [Range(1f, 20f)] [SerializeField] private float leftSpawnRange = 10f;
-    [Range(1f, 20f)] [SerializeField] private float rightSpawnRange = 10f;
+    [Range(1f, 20f)] [SerializeField] public float leftMinDistance = 11f;
+    [Range(1f, 20f)] [SerializeField] public float rightMinDistance = 11f;
+    [Range(1f, 20f)] [SerializeField] public float leftSpawnRange = 10f;
+    [Range(1f, 20f)] [SerializeField] public float rightSpawnRange = 10f;
 
     private int numberOfActiveFishes = 0;
 
