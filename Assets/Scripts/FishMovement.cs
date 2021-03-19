@@ -10,7 +10,7 @@ public class FishMovement : MonoBehaviour
     [SerializeField] private LayerMask boatLayerMask;
     private BoxCollider2D boxCollider2D;
 
-    private bool fishOnRightOfBoat = true;
+    public bool fishOnRightOfBoat = true;
     
     private bool atApex = false;
     [SerializeField] private float jumpVelocity = 100f;
@@ -60,7 +60,14 @@ public class FishMovement : MonoBehaviour
         if (isBiting)
         {
             // Rotate to 
-            fishRb.transform.RotateAround(biteRotationPoint, new Vector3(0, 0, 1), speed);
+            if (fishOnRightOfBoat)
+            {
+                fishRb.transform.RotateAround(biteRotationPoint, new Vector3(0, 0, 1), speed);
+            }
+            else
+            {
+                fishRb.transform.RotateAround(biteRotationPoint, new Vector3(0, 0, -1), speed);
+            }
         }
     }
 
@@ -75,8 +82,16 @@ public class FishMovement : MonoBehaviour
     {
         // Find the boat
         // Cast a CircleCast
-        RaycastHit2D raycastHit2D =
-            Physics2D.CircleCast(fishRb.position, circleCastRadius, Vector2.left, 1.5f , boatLayerMask);
+        RaycastHit2D raycastHit2D;
+        if (fishOnRightOfBoat)
+        {
+            raycastHit2D = Physics2D.CircleCast(fishRb.position, circleCastRadius, Vector2.left, 1.5f , boatLayerMask);
+        }
+        else
+        {
+            raycastHit2D = Physics2D.CircleCast(fishRb.position, circleCastRadius, Vector2.right, 1.5f , boatLayerMask);
+        }
+        
         if (raycastHit2D.collider != null)
         {
             boatGameObject = raycastHit2D.collider.gameObject;
@@ -103,9 +118,18 @@ public class FishMovement : MonoBehaviour
 
         // Half size as we need one side
         float halfSize = boatSize / 2;
-
+        
         // Center + half - bitesize/2 to find center of biting point
-        float bitingPointXCenter = boatCenterPosition.x + halfSize - biteSize/2;
+        float bitingPointXCenter;
+        if (fishOnRightOfBoat)
+        {
+            bitingPointXCenter = boatCenterPosition.x + halfSize - biteSize/2;
+        }
+        else
+        {
+            bitingPointXCenter = boatCenterPosition.x - halfSize + biteSize/2;
+        }
+            
 
         // return
         return new Vector2(bitingPointXCenter, boatCenterPosition.y);
