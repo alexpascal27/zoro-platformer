@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-using Random = System.Random;
+using Random = UnityEngine.Random;
 
 public class FishSpawn : MonoBehaviour
 {
@@ -14,6 +14,9 @@ public class FishSpawn : MonoBehaviour
     [Range(1f, 20f)] [SerializeField] public float leftSpawnRange = 10f;
     [Range(1f, 20f)] [SerializeField] public float rightSpawnRange = 10f;
     [Range(1f, 20f)] [SerializeField] public float spawnCooldown = 1f;
+
+    [Range(0.1f, 5f)] [SerializeField] private float minFishScale = 0.5f;
+    [Range(0.1f, 5f)] [SerializeField] private float maxFishScale = 2f;
 
     public int numberOfActiveFishes = 0;
     private float[] spawnCooldownTracker;
@@ -56,6 +59,7 @@ public class FishSpawn : MonoBehaviour
                     // Spawn and increase the no of active fishes accordingly
                     fishGameObject.GetComponent<FishMovement>().fishOnRightOfBoat = !spawnLeft;
                     fishGameObject.transform.position = spawnLocation;
+                    ApplySizeChanger();
                     Instantiate(fishGameObject);
                     numberOfActiveFishes++;
                 }
@@ -72,8 +76,18 @@ public class FishSpawn : MonoBehaviour
         
         return -1;
     }
-    
-    
+
+    private void ApplySizeChanger()
+    {
+        // Randomise a value in the min-max range
+        float scale = Random.Range(minFishScale, maxFishScale);
+
+        // Assign the fish scale
+        fishGameObject.transform.localScale = new Vector3(scale, scale);
+
+        // Update bitesize
+        biteSize = scale;
+    }
 
     private void ApplyCooldownOnSlot(int freeSlotIndex, float time)
     {
@@ -119,8 +133,7 @@ public class FishSpawn : MonoBehaviour
         else
         {
             // Randomise 
-            Random rand = new Random();
-            return rand.Next(2) == 1;
+            return Random.Range(0,2) == 0;
         }
     }
 
@@ -128,19 +141,17 @@ public class FishSpawn : MonoBehaviour
     {
         float bitingPointX = FindNearestBitingPoint(spawnLeft).x;
 
-        Random rand = new Random();
-
         float fishStartPositionX;
         if (spawnLeft)
         {
             fishStartPositionX = bitingPointX - leftMinDistance;
-            float posXInRange = rand.Next((int)leftSpawnRange);
+            float posXInRange = Random.Range(0, leftSpawnRange);
             fishStartPositionX -= posXInRange;
         }
         else
         {
             fishStartPositionX = bitingPointX + rightMinDistance;
-            float posXInRange = rand.Next((int)rightSpawnRange);
+            float posXInRange = Random.Range(0, rightSpawnRange);
             fishStartPositionX += posXInRange;
         }
 
@@ -178,9 +189,31 @@ public class FishSpawn : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.gameObject.CompareTag("Player"))
+        GameObject colliderObjGameObject = other.gameObject;
+        if (colliderObjGameObject.CompareTag("Player"))
         {
             touchedPlayer = true;
         }
+        else if (colliderObjGameObject.CompareTag("Fish"))
+        {
+            // Find busy slot
+            int busySlotIndex = GetBusySpawnSlot();
+            if (busySlotIndex != -1)
+            {
+                // Reduce cooldown of slot
+                spawnCooldownTracker[busySlotIndex] = 0f;
+            }
+        }
+        
+    }
+
+    private int GetBusySpawnSlot()
+    {
+        for (int i = 0; i < spawnCooldownTracker.Length; i++)
+        {
+            if (spawnCooldownTracker[i] >= Time.time) return i;
+        }
+        
+        return -1;
     }
 }

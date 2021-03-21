@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 public class FishMovement : MonoBehaviour
 {
     private Rigidbody2D fishRb;
+    private float initialGravityScale;
+    private BoxCollider2D fishBoxCollider2D;
     [SerializeField] private LayerMask waterLayerMask;
     [SerializeField] private LayerMask boatLayerMask;
 
@@ -23,7 +25,9 @@ public class FishMovement : MonoBehaviour
     private Vector2 biteRotationPoint = Vector2.zero;
     private Vector2 bitingPoint = Vector2.zero;
     [SerializeField] private float biteRotationSpeed = 10f;
-    [SerializeField] public float biteSize = 1f;
+    private int rotationCounter = 0;
+    public float biteSize;
+    [Range(0.01f, 2f)][SerializeField] private float biteSizeDownScale = 0.5f;
     
     // Boat
     [SerializeField] private GameObject staticBoatGameObject;
@@ -33,11 +37,17 @@ public class FishMovement : MonoBehaviour
     void Awake()
     {
         fishRb = GetComponent<Rigidbody2D>();
+        initialGravityScale = fishRb.gravityScale;
+        fishBoxCollider2D = GetComponent<BoxCollider2D>();
+        
         boatBoxCollider2D = GetComponent<BoxCollider2D>();
         boatGameObject = staticBoatGameObject;
 
         FishSpawn fishSpawn = staticBoatGameObject.GetComponent<FishSpawn>();
         leftRaycastDistance = fishSpawn.leftMinDistance;
+        
+        // Use scale.x to determine the bitesize
+        biteSize = gameObject.transform.localScale.x * biteSizeDownScale;
     }
 
     void Update()
@@ -64,12 +74,18 @@ public class FishMovement : MonoBehaviour
 
     private void CheckIfFishNeedToDie()
     {
-        // fish dies if rotation is over 180 and below boat
-        if ((fishRb.transform.rotation.z < -179f || fishRb.transform.rotation.z > 179f) && fishRb.transform.position.y < boatGameObject.transform.position.y)
+        // fish dies if rotation is over 180
+        if ((fishRb.transform.rotation.z < -179f || fishRb.transform.rotation.z > 179f))
         {
-            Destroy(gameObject);
+            // If below boat or rotated more than once
+            if (fishRb.transform.position.y < boatGameObject.transform.position.y || rotationCounter > 0) 
+            {
+                // Destroy
+                Destroy(gameObject);
+                return;
+            }
+            rotationCounter++;
         }
-        
     }
 
     void FixedUpdate()
@@ -93,7 +109,8 @@ public class FishMovement : MonoBehaviour
 
     private bool isGrounded()
     {
-        RaycastHit2D raycastHit2D = Physics2D.BoxCast(boatBoxCollider2D.bounds.center, boatBoxCollider2D.bounds.size, 0f,
+        Bounds colliderBounds = fishBoxCollider2D.bounds;
+        RaycastHit2D raycastHit2D = Physics2D.BoxCast(colliderBounds.center, colliderBounds.size, 0f,
             Vector2.down, .1f, waterLayerMask);
         return raycastHit2D.collider != null;
     }
@@ -253,8 +270,10 @@ public class FishMovement : MonoBehaviour
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
-            
-            
+        }
+        else if (colliderGameObject.CompareTag("Fish"))
+        {
+            fishRb.gravityScale = initialGravityScale;
         }
         else if (colliderGameObject.CompareTag("Boat"))
         {

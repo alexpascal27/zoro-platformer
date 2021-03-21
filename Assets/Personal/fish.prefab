@@ -28,8 +28,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 610641055632607585}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 39.08766, y: -4.76, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 1}
+  m_LocalPosition: {x: 31.025112, y: -4.76, z: 0}
+  m_LocalScale: {x: 1.9136748, y: 1.9136748, z: 0}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -104,11 +104,12 @@ MonoBehaviour:
     m_Bits: 1024
   fishOnRightOfBoat: 0
   rightRaycastDistance: 3
-  jumpVelocity: 9
+  jumpVelocity: 1
   playerUpwardsPush: 14
   circleCastRadius: 5
   biteRotationSpeed: 100
   biteSize: 0.5
+  biteSizeDownScale: 0.5
   staticBoatGameObject: {fileID: 4065297338644316625, guid: cb8b8bbd13271db7db061c1ab1676732,
     type: 3}
 --- !u!50 &610641055632607590
