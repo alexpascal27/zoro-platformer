@@ -7,6 +7,7 @@ public class TurretShooting : MonoBehaviour
     private float startingZAngle;
     [SerializeField]private Transform tipCheck;
     [Range(0.1f, 20f)] [SerializeField] private float raycastDistance = 10f;
+    private bool inSightOfPlayer = false;
     
     private void Awake()
     {
@@ -23,9 +24,23 @@ public class TurretShooting : MonoBehaviour
             // If collider is player
             if (raycastCollider2D.gameObject.CompareTag("Player"))
             {
-                // Shoot logic
-                Shoot();
+                // Check if we are already in sight of player
+                if (!inSightOfPlayer)
+                {
+                    // Shoot logic
+                    Shoot();
+                    inSightOfPlayer = true;
+                }
+                
             }
+            else
+            {
+                inSightOfPlayer = false;
+            }
+        }
+        else
+        {
+            inSightOfPlayer = false;
         }
         
     }
