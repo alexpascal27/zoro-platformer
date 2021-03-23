@@ -48,19 +48,13 @@ public class FishMovement : MonoBehaviour
         
         // Use scale.x to determine the bitesize
         biteSize = gameObject.transform.localScale.x * biteSizeDownScale;
+        
+        // flip the y if fish on right
+        if (fishOnRightOfBoat) fishRb.transform.Rotate(new Vector3(0,1), -180);
     }
 
     void Update()
     {
-        // Check if we are approximately at apex
-        if (fishRb.velocity.y <= 0 && this.atApex == false)
-        {
-            this.atApex = true;
-            ProcessAtApex();
-        }
-        
-        CheckIfFishNeedToDie();
-        
         if (isGrounded())
         {
             // Jump
@@ -68,23 +62,13 @@ public class FishMovement : MonoBehaviour
             // Set high point to false as we are definitely not at apex of jump
             this.atApex = false;
         }
-
-        
-    }
-
-    private void CheckIfFishNeedToDie()
-    {
-        // fish dies if rotation is over 180
-        if ((fishRb.transform.rotation.z < -179f || fishRb.transform.rotation.z > 179f))
+        else
         {
-            // If below boat or rotated more than once
-            if (fishRb.transform.position.y < boatGameObject.transform.position.y || rotationCounter > 0) 
+            if (fishRb.velocity.y < 0 && this.atApex == false)
             {
-                // Destroy
-                Destroy(gameObject);
-                return;
+                this.atApex = true;
+                ProcessAtApex();
             }
-            rotationCounter++;
         }
     }
 
@@ -95,7 +79,6 @@ public class FishMovement : MonoBehaviour
 
         if (isBiting)
         {
-            // Rotate to 
             if (fishOnRightOfBoat)
             {
                 fishRb.transform.RotateAround(biteRotationPoint, new Vector3(0, 0, 1), speed);
@@ -103,6 +86,11 @@ public class FishMovement : MonoBehaviour
             else
             {
                 fishRb.transform.RotateAround(biteRotationPoint, new Vector3(0, 0, -1), speed);
+            }
+            if (fishRb.transform.rotation.eulerAngles.z < 190)
+            {
+                Debug.Log("Destroyed lol");
+                Destroy(gameObject);
             }
         }
     }
@@ -283,17 +271,21 @@ public class FishMovement : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Find boats in scene
-        GameObject[] boats = GameObject.FindGameObjectsWithTag("Boat");
-
-        // Identify Closest boat
-        GameObject closestBoat = GetClosestBoat(boats);
-        // If found any boat
-        if (closestBoat != null)
+        if (isBiting)
         {
-            // Deduct 1 from active fishes in the FishSpawn script
-            FishSpawn fishSpawn = closestBoat.GetComponent<FishSpawn>();
-            fishSpawn.numberOfActiveFishes--;
+            isBiting = false;
+            // Find boats in scene
+            GameObject[] boats = GameObject.FindGameObjectsWithTag("Boat");
+            
+            // Identify Closest boat
+            GameObject closestBoat = GetClosestBoat(boats);
+            // If found any boat
+            if (closestBoat != null)
+            {
+                // Deduct 1 from active fishes in the FishSpawn script
+                FishSpawn fishSpawn = closestBoat.GetComponent<FishSpawn>();
+                fishSpawn.numberOfActiveFishes--;
+            }
         }
     }
 
