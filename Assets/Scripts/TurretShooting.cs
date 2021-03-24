@@ -7,7 +7,14 @@ public class TurretShooting : MonoBehaviour
     private TurretMovement _turretMovement;
     private bool followPlayerIfInSight;
     private float startingZAngle;
-    [SerializeField]private Transform tipCheck;
+    
+    [SerializeField]private Transform firePoint;
+    [SerializeField] private GameObject bulletPrefab;
+    [Range(0.1f, 500f)] [SerializeField] private float bulletForce = 20f;
+    [Range(0.1f, 500f)] [SerializeField] private float lockOnDuration = 2f;
+    private float shootCountDown = 0f;
+    private bool lockedOn = false;
+    
     [Range(0.1f, 20f)] [SerializeField] private float raycastDistance = 10f;
     private bool inSightOfPlayer = false;
     
@@ -21,6 +28,8 @@ public class TurretShooting : MonoBehaviour
 
     private void Update()
     {
+        Debug.Log("ShootCountDown: "+ shootCountDown);
+
         // Raycast and return collider
         Collider2D raycastCollider2D = GetColliderInRaycast();
         if (raycastCollider2D != null)
@@ -32,7 +41,6 @@ public class TurretShooting : MonoBehaviour
                 if (!inSightOfPlayer)
                 {
                     // Shoot logic
-                    Shoot();
                     PlayerInSight(raycastCollider2D);
                 }
                 // If already in sight of player then update player position
@@ -59,13 +67,15 @@ public class TurretShooting : MonoBehaviour
         Vector3 direction = Vector2.down;
         float zAngleToRotateBy = rb.transform.rotation.eulerAngles.z - startingZAngle;
         direction = Quaternion.Euler(0, 0, zAngleToRotateBy) * direction;
-        RaycastHit2D raycastHit2D = Physics2D.Raycast(tipCheck.position, direction, raycastDistance);
+        RaycastHit2D raycastHit2D = Physics2D.Raycast(firePoint.position, direction, raycastDistance);
         return raycastHit2D.collider;
     }
 
     private void Shoot()
     {
-        Debug.Log("Player In Sight");
+        GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+        Rigidbody2D bulletRb = bullet.GetComponent<Rigidbody2D>();
+        bulletRb.AddForce(firePoint.up * bulletForce, ForceMode2D.Impulse);
     }
 
     private void PlayerInSight(Collider2D playerCollider2D)
@@ -74,6 +84,25 @@ public class TurretShooting : MonoBehaviour
         {
             _turretMovement.standBy = false;
             _turretMovement.playerGameObject = playerCollider2D.gameObject;
+
+            if (shootCountDown <= 0f)
+            {
+                if (!lockedOn)
+                {
+                    shootCountDown = lockOnDuration;
+                    lockedOn = true;
+                }
+                else
+                {
+                    Shoot();
+                    lockedOn = false;
+                    shootCountDown = 0f;
+                }
+            }
+            else
+            {
+                shootCountDown -= Time.deltaTime;
+            }
         }
     }
 
@@ -83,6 +112,9 @@ public class TurretShooting : MonoBehaviour
         {
             _turretMovement.standBy = true;
             _turretMovement.playerGameObject = null;
+
+            shootCountDown = 0f;
+            lockedOn = false;
         }
     }
 }

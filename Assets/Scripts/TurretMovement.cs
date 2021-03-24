@@ -92,17 +92,5 @@ public class TurretMovement : MonoBehaviour
         angle -= 90;
         Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
         transform.rotation = Quaternion.Slerp(rb.transform.rotation, rotation, speed);
-        
-       // Debug.Log("Angle: " + angle);
-/*
-        if (left)
-        {
-            rb.transform.RotateAround(rb.position, new Vector3(0, 0, -1), angle);
-        }
-        else
-        {
-            rb.transform.RotateAround(rb.position, new Vector3(0, 0, 1), angle);
-        }
-        */
     }
 }
