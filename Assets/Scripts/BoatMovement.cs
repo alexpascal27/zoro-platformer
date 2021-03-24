@@ -66,11 +66,7 @@ public class BoatMovement : MonoBehaviour
             // Reverse movement
             movementSpeed = -movementSpeed;
         }
-        else if (collisionGameObject.CompareTag("Fish"))
-        {
-            
-        }
-        else
+        else if (collisionGameObject.CompareTag("Chaser"))
         {
             Destroy(gameObject);
         }

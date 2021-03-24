@@ -28,7 +28,6 @@ public class TurretShooting : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log("ShootCountDown: "+ shootCountDown);
 
         // Raycast and return collider
         Collider2D raycastCollider2D = GetColliderInRaycast();
