@@ -64,16 +64,45 @@ public class TurretMovement : MonoBehaviour
         if (playerGameObject != null)
         {
             // Angle between player and turret
-            float angle = Vector2.Angle(rb.transform.position, playerGameObject.transform.position);
+            /*
+            float angle = Vector2.Angle(playerGameObject.transform.position, rb.transform.position);
             angle -= 45;
+            */
+
+            RotateToPlayer();
             
             // Move turret by angle
-            rb.transform.RotateAround(rb.position, new Vector3(0, 0, 1), angle);
-            Debug.Log("Angle: " + angle);
+            //rb.transform.RotateAround(rb.position, new Vector3(0, 0, 1), angle);
+            
         }
         else
         {
             standBy = true;
         }
+    }
+
+    private void RotateToPlayer()
+    {
+        float speed = rotationSpeed * Time.deltaTime;
+        
+        // Target direction
+        Vector3 targetDirection = playerGameObject.transform.position - rb.transform.position;
+        
+        float angle = Mathf.Atan2(targetDirection.y, targetDirection.x) * Mathf.Rad2Deg;
+        angle -= 90;
+        Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        transform.rotation = Quaternion.Slerp(rb.transform.rotation, rotation, speed);
+        
+       // Debug.Log("Angle: " + angle);
+/*
+        if (left)
+        {
+            rb.transform.RotateAround(rb.position, new Vector3(0, 0, -1), angle);
+        }
+        else
+        {
+            rb.transform.RotateAround(rb.position, new Vector3(0, 0, 1), angle);
+        }
+        */
     }
 }
