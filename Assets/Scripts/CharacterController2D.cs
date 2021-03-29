@@ -150,11 +150,9 @@ public class CharacterController2D : MonoBehaviour
 			if (m_Rigidbody2D.gravityScale >= 0)
 			{
 				m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
-				Debug.Log("Jump up");
 			}
 			else
 			{
-				Debug.Log("Jump upside down");
 				m_Rigidbody2D.AddForce(new Vector2(0f, -m_JumpForce));
 			}
 		}

@@ -10,6 +10,7 @@ TagManager:
   - Pole
   - Fish
   - Chaser
+  - Bullet
   layers:
   - Default
   - TransparentFX

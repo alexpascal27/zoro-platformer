@@ -5,6 +5,7 @@ public class TurretShooting : MonoBehaviour
 {
     private Rigidbody2D rb;
     private TurretMovement _turretMovement;
+    private bool upsideDown;
     private bool followPlayerIfInSight;
     private float startingZAngle;
     
@@ -22,6 +23,7 @@ public class TurretShooting : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         _turretMovement = GetComponent<TurretMovement>();
+        upsideDown = _turretMovement.upsideDown;
         followPlayerIfInSight = _turretMovement.followPlayerIfInSight;
         startingZAngle = rb.transform.rotation.eulerAngles.z;
     }
@@ -63,8 +65,9 @@ public class TurretShooting : MonoBehaviour
 
     private Collider2D GetColliderInRaycast()
     {
-        Vector3 direction = Vector2.down;
-        float zAngleToRotateBy = rb.transform.rotation.eulerAngles.z - startingZAngle;
+        upsideDown = _turretMovement.upsideDown;
+        Vector3 direction = upsideDown ? Vector2.down : Vector2.up;
+        float zAngleToRotateBy = rb.transform.rotation.eulerAngles.z - startingZAngle * (upsideDown ? 1 : -1);
         direction = Quaternion.Euler(0, 0, zAngleToRotateBy) * direction;
         RaycastHit2D raycastHit2D = Physics2D.Raycast(firePoint.position, direction, raycastDistance);
         return raycastHit2D.collider;
